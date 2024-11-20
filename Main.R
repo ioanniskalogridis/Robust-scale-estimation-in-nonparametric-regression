@@ -2,6 +2,7 @@ require(Matrix)
 require(fda)
 require(MASS)
 require(SparseM)
+require(robustbase)
 
 rob.scale <- function(x, y, tuning.c = 1e-04, max.iter = 500, pen.reg = 2, pen.scale = 2, lambda = NULL,
                       toler = 1e-08, v = 2){
