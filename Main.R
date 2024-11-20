@@ -82,7 +82,7 @@ rob.scale <- function(x, y, tuning.c = 1e-04, max.iter = 500, pen.reg = 2, pen.s
   B <- eval.basis(b.basis, x.c)
   Pen.matrix <- bsplinepen(b.basis, Lfdobj= pen.scale)
   reg.est <- l1.smsp(x,y)
-  Y.log.trans <- log(abs(Y-reg.est$mu))
+  Y.log.trans <- log(abs(y-reg.est$mu))
   
   pseudo.step <- function(B, y, tol = toler, maxiter = max.iter, lambda){
     
