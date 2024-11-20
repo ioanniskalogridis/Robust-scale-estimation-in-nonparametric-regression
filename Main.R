@@ -6,6 +6,20 @@ require(robustbase)
 
 rob.scale <- function(x, y, tuning.c = 1e-04, max.iter = 500, pen.reg = 2, pen.scale = 2, lambda = NULL,
                       toler = 1e-08, v = 2){
+
+## x is the (univariate) predictor variable
+## y is the response variable
+## tuning.c is the tuning constant in the local quadratic approximation of the absolute loss about the origin
+ # it is needed to estimate the regression function
+## max.iter is the maximum number of iterations for the computing algorithms
+## pen.reg is the order of the penalty for the estimation of the regression function
+ # by default equal to 2 corresponding to cubic smoothing splines
+## pen.scale is the order of the penalty of the estimation of the (log-)scale of the error
+## lambda is the smoothing parameter for the estimation of the (log-)scale
+ # NULL indicates a grid search procedure as in Kalogridis and Van Aelst (2024), otherwise specify exact value
+## v is the degrees of freedom of the t-distribution and therefore the tuning parameter of the objective function
+ # see Kalogridis and Van Aelst (2024) for details
+  
   
   l1.smsp <- function(x, y, tuning = 1e-04, maxit = 500, m = 2, 
                         lambda = NULL){
