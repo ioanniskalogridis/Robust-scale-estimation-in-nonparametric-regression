@@ -12,7 +12,7 @@ mse.scale.rob1 = mse.scale.rob2 = mse.scale.rob5 = mse.scale.rob10 <- rep(NA, nr
 
 f1 <- function(x) 0.5*exp(x)
 
-for(k in 381:nrep){
+for(k in 1:nrep){
   print(k)
   y <- rep(0,n)
   x <- 1:n/n
@@ -50,7 +50,7 @@ mean(mse.scale.rob10, na.rm = TRUE)*100; sd(mse.scale.rob10, na.rm = TRUE)/sqrt(
 mean(mse.scale.ls, na.rm = TRUE)*100;  sd(mse.scale.ls, na.rm = TRUE)/sqrt(nrep)*100
 
 matplot(x, m.scale.ls, type = "l", lwd = 3, lty = 1, cex.axis = 2.5, cex.lab = 2.5, cex = 3, ylab = "y",
-        col = "gray") ; grid()
+        col = "gray", ylim = c(0.3, 2.5)) ; grid()
 curve(f1(x), add= TRUE, lwd = 3, col = "black")
 matplot(x, m.scale.rob2, type = "l", lwd = 3, lty = 1, cex.axis = 2.5, cex.lab = 2.5, cex = 3, ylab ="y",
         col = "gray", ylim = c(0.3, 2.5)); grid()
