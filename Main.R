@@ -139,6 +139,7 @@ rob.scale <- function(x, y, tuning.c = 1e-04, max.iter = 500, pen.reg = 2, pen.s
   f.int <- function(x) integrate(function(s) s^2/(x^2*v+s^2)*dnorm(s), -Inf, Inf)$value - 1/(v+1)
   cor.factor <- uniroot(f.int, interval = c(0, 1.5))$root
   mu.f <- exp(fit.f$mu)/cor.factor 
-  return(list(mu = mu.f, lambda1 = cand.opt, ic = fit.f$ic, check = fit.f$check))
+  return(list(scale.est = mu.f, reg.est = reg.est$mu,
+              lambda1 = cand.opt, ic = fit.f$ic, check = fit.f$check))
 }
 
