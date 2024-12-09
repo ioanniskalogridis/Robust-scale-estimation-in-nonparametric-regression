@@ -10,8 +10,8 @@ data <- select(kc1, nox, air_temp)
 data <- data[complete.cases(data),]
 data <- data[order(data$air_temp),]
 dim(data)
-y <- data$nox
-x <- data$air_temp
+y <- data$nox[1:7954]
+x <- data$air_temp[1:7954]
 
 par(mar = c(6,6.5,2,2), mgp = c(4.5, 1.5, 0))
 plot(x,y, cex.axis = 2.5, cex.lab = 2.5, cex = 2.5, pch = 19, col = "gray",
