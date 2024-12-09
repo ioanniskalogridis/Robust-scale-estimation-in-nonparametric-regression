@@ -4,8 +4,8 @@ require(MASS)
 require(SparseM)
 require(robustbase)
 
-rob.scale <- function(x, y, tuning.c = 1e-04, max.iter = 500, pen.reg = 2, pen.scale = 2, lambda = NULL,
-                      toler = 1e-08, v = 2){
+rob.scale <- function(x, y, tuning.c = 1e-03, max.iter = 500, pen.reg = 2, pen.scale = 2, lambda = NULL,
+                      toler = 1e-08, v = 2, type = "rob"){
 
 ## x is the (univariate) predictor variable
 ## y is the response variable
@@ -21,7 +21,7 @@ rob.scale <- function(x, y, tuning.c = 1e-04, max.iter = 500, pen.reg = 2, pen.s
  # see Kalogridis and Van Aelst (2024) for details
   
   
-  l1.smsp <- function(x, y, tuning = 1e-04, maxit = 500, m = 2, 
+  l1.smsp <- function(x, y, tuning = 1e-03, maxit = 500, m = 2, 
                         lambda = NULL){
     
     rho.abs <-  function(x, tuning = 1e-04) ifelse(abs(x) <= tuning, 0.5*x^2/tuning, abs(x))
@@ -71,10 +71,11 @@ rob.scale <- function(x, y, tuning.c = 1e-04, max.iter = 500, pen.reg = 2, pen.s
     GCV <- function(lambda){
       fit.r <- l1.step(X = b.basis.e,  y = y, lambda = lambda, Pen.matrix = Pen.matrix,
                        tuning = tuning, resids.in = resids.in, maxit = maxit)
-      GCV.scores <-  mean( fit.r$weights*((fit.r$resids)^2) /((1-fit.r$hat.values)^2) )
+      GCV.scores <-  mean( fit.r$weights*((fit.r$resids)^2) /((1-mean(fit.r$hat.values))^2) )
+      # GCV.scores <- scaleTau2(fit.r$resids/(1-fit.r$hat.values))
       return(GCV.scores)
     }
-    cand.values <- exp(seq(log(1e-12), log(3), len = 50))
+    cand.values <- exp(seq(log(1e-12), log(3), len = 30))
     GCV.values <- sapply(cand.values, FUN = GCV)
     lambda1 = cand.values[which.min(GCV.values)]
     
@@ -93,11 +94,30 @@ rob.scale <- function(x, y, tuning.c = 1e-04, max.iter = 500, pen.reg = 2, pen.s
   
   n <- length(y)
   x.c <- (x-min(x))/(max(x)-min(x))
-  b.basis <- create.bspline.basis(rangeval = c(x.c[1], x.c[n]), breaks = x.c, norder = 2*pen.scale)
+  b.basis <- create.bspline.basis(rangeval = c(x.c[1], x.c[n]), breaks = unique(x.c), norder = 2*pen.scale)
   B <- eval.basis(b.basis, x.c)
   Pen.matrix <- bsplinepen(b.basis, Lfdobj= pen.scale)
-  reg.est <- l1.smsp(x,y)
-  Y.log.trans <- log(abs(y-reg.est$mu))
+  if(type == "rob"){
+    reg.est <- l1.smsp(x,y)
+    Y.log.trans <- log(abs(y-reg.est$mu))
+  } else{
+    # reg.est <- smooth.spline(x,y)
+    GCV.l <- function(lambda){
+      coef.est <- solve(t(B)%*%B+lambda*Pen.matrix, (t(B)%*%y))
+      fitted <- c(B%*%coef.est)
+      resids <- y-fitted
+      hat.tr <-  diag(B%*%solve(t(B)%*%B+lambda*Pen.matrix, t(B)))
+      GCV.crit <- mean(resids^2/(1-hat.tr)^2)
+      return(GCV.crit)
+    }
+    cand.values <- exp(seq(log(1e-12), log(3), len = 30))
+    GCV.values <- sapply(cand.values, FUN = GCV.l)
+    lambda1 = cand.values[which.min(GCV.values)]
+    
+    coef.est <- solve(t(B)%*%B+lambda1*Pen.matrix, (t(B)%*%y))
+    fitted <- c(B%*%coef.est)
+    Y.log.trans <- log(abs(y-fitted))
+  }
   
   pseudo.step <- function(B, y, tol = toler, maxiter = max.iter, lambda){
     
@@ -128,7 +148,7 @@ rob.scale <- function(x, y, tuning.c = 1e-04, max.iter = 500, pen.reg = 2, pen.s
       GCV.crit <- scaleTau2((fit.l$pseudo-fit.l$mu)/(1-hat.tr))
       return(GCV.crit)
     }
-    cand.values <- exp(seq(log(1e-12), log(3), len = 50))
+    cand.values <- exp(seq(log(1e-12), log(3), len = 30))
     GCV.values <- sapply(X=cand.values, FUN=GCV)
     cand.opt <- cand.values[which.min(GCV.values)]
     
@@ -138,8 +158,16 @@ rob.scale <- function(x, y, tuning.c = 1e-04, max.iter = 500, pen.reg = 2, pen.s
   }
   f.int <- function(x) integrate(function(s) s^2/(x^2*v+s^2)*dnorm(s), -Inf, Inf)$value - 1/(v+1)
   cor.factor <- uniroot(f.int, interval = c(0, 1.5))$root
-  mu.f <- exp(fit.f$mu)/cor.factor 
-  return(list(scale.est = mu.f, reg.est = reg.est$mu,
-              lambda1 = cand.opt, ic = fit.f$ic, check = fit.f$check))
+  mu.f <- exp(fit.f$mu)/cor.factor
+  if(type == "rob"){
+    reg.est = reg.est$mu
+  } else{
+    # reg.est = predict(reg.est, x)$y
+    reg.est <- c(B%*%coef.est)
+  }
+  resids <- y - reg.est
+  
+  return(list(scale.est = mu.f, reg.est = reg.est, resids= resids, st.resids = resids/mu.f,
+              lambda.scale = cand.opt,ic = fit.f$ic, check = fit.f$check))
 }
 
