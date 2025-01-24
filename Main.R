@@ -7,7 +7,7 @@ require(robustbase)
 rob.scale <- function(x, y, tuning.c = 1e-03, max.iter = 500, pen.reg = 2, pen.scale = 2, lambda = NULL,
                       toler = 1e-08, v = 2, type = "rob"){
 
-## x is the (univariate) predictor variable
+## x is the univariate ordered predictor variable
 ## y is the response variable
 ## tuning.c is the tuning constant in the local quadratic approximation of the absolute loss about the origin
  # it is needed to estimate the regression function
