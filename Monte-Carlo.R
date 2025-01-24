@@ -2,7 +2,7 @@ require(fda)
 require(sn)
 require(EnvStats)
 
-nrep <- 50
+nrep <- 1000
 n <- 100
 m.scale.ls <- matrix(NA, nrow = n, ncol = nrep)
 m.scale.rob1 = m.scale.rob2 = m.scale.rob5 = m.scale.rob10 <- matrix(NA, nrow = n, ncol = nrep)
@@ -15,7 +15,6 @@ f1 <- function(x) 0.5*exp(x)
 
 for(k in 1:nrep){
   print(k)
-  y <- rep(0,n)
   x <- 1:n/n
   y <- cos(2*pi*x) + f1(x)*rnorm(n)
   # y <- cos(4*pi*x) + f1(x)*rnorm(n)
@@ -52,10 +51,10 @@ mean(mse.scale.rob10, na.rm = TRUE)*100; sd(mse.scale.rob10, na.rm = TRUE)/sqrt(
 mean(mse.scale.ls, na.rm = TRUE)*100;  sd(mse.scale.ls, na.rm = TRUE)/sqrt(nrep)*100
 
 par(mar = c(6,6.5,2,2), mgp = c(4.5, 1.5, 0))
-matplot(x, m.scale.ls[, 1:20], type = "l", lwd = 3, lty = 1, cex.axis = 2.5, cex.lab = 2.5, cex = 3,
+matplot(x, m.scale.ls, type = "l", lwd = 3, lty = 1, cex.axis = 2.5, cex.lab = 2.5, cex = 3,
         col = "gray", ylim = c(0.3, 1.7), ylab = "") ; grid()
 curve(f1(x), add= TRUE, lwd = 3, col = "black")
-matplot(x, m.scale.rob2[ ,1:20], type = "l", lwd = 3, lty = 1, cex.axis = 2.5, cex.lab = 2.5, cex = 3,
+matplot(x, m.scale.rob1, type = "l", lwd = 3, lty = 1, cex.axis = 2.5, cex.lab = 2.5, cex = 3,
         col = "gray", ylim = c(0.3, 1.7), ylab = ""); grid()
 curve(f1(x), add= TRUE, lwd = 3, col = "black")
 
