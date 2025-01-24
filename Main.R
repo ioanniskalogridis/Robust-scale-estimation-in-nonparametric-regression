@@ -18,7 +18,7 @@ rob.scale <- function(x, y, tuning.c = 1e-03, max.iter = 500, pen.reg = 2, pen.s
 ## lambda is the smoothing parameter for the estimation of the (log-)scale
  # NULL indicates a grid search procedure as in Kalogridis and Van Aelst (2024), otherwise specify exact value
 ## v is the degrees of freedom of the t-distribution and therefore the tuning parameter of the objective function
- # see Kalogridis and Van Aelst (2024) for details
+ # see Kalogridis and Van Aelst (2025) for details
   
   
   l1.smsp <- function(x, y, tuning = 1e-03, maxit = 500, m = 2, 
